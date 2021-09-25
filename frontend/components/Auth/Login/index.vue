@@ -1,6 +1,7 @@
 <template>
     <div>
         <p>Welcome to Login</p>
+        <Notification :message="error" v-if="error"/>
         <b-form @submit.prevent="login">
               <b-form-group
                 id="email-label"
@@ -34,14 +35,21 @@
     </div>
 </template>
 
-<script>
-    export default {
+<script> 
+    import Notification from '../../Notification';
+
+    export default {  
+        components: {
+            Notification,
+        },   
+
         data() {
             return {
                 loginData: {
                     email: "",
                     password: ""
-                }
+                },
+                error: null
             };
         },
         methods: {
@@ -50,10 +58,9 @@
                     let response = await this.$auth.loginWith("local", {
                         data: this.loginData
                     });
-                    this.$router.push("/");
-                    console.log(response);
+                    this.$router.push("/users");
                 }catch (err) {
-                    console.log(err);
+                    this.error = err.response.data.message;
                 }
             }
         }

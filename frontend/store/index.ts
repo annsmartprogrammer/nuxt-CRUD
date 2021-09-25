@@ -3,6 +3,7 @@ export const getters = {
         return state.auth.loggedIn;
     },
     getUserInfo(state: any) {
+        console.log(state.auth.user)
         return state.auth.user;
     }
 }

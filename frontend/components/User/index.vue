@@ -1,23 +1,21 @@
 <template>
     <div>
-      Hello dear <b style="color:red">{{ getUserInfo.fullname }}</b> you're in
-      profile page
-      <hr />
-      This is your information:
-      <br /><br />
+      <button class="btn btn-success">Create</button>
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">ID</th>
-            <th scope="col">FullName</th>
+            <th scope="col">Full Name</th>
             <th scope="col">Email</th>
+            <th scope="col">Password</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>{{ getUserInfo.id }}</td>
-            <td>{{ getUserInfo.fullname }}</td>
-            <td>{{ getUserInfo.email }}</td>
+          <tr  v-for="user in getUserInfo" v-bind:key="user._id">
+            <td>{{ user.fullname }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.password }}</td>
+            <td><button class="btn btn-primary">Edit</button></td>
+            <td><button class="btn btn-danger">Delete</button></td>
           </tr>
         </tbody>
       </table>
@@ -30,7 +28,7 @@
       getUserInfo() {
         return this.$store.getters.getUserInfo;
       }
-    }
+    },
   };
   </script>
 

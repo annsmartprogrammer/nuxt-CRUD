@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 app.use("/api/auth/", authRouter);
 
 app.use((error, req, res, next) => {
-  console.log(error);
+  console.log("app.js error", error);
   const status = error.statusCode || 500;
   const message = error.message;
   const data = error.data;
@@ -34,10 +34,17 @@ app.use((error, req, res, next) => {
 // connect to db
 const MONGOOSE_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.jhwsi.mongodb.net/${process.env.MONGODB_NAME}?retryWrites=true&w=majority`;
 
-mongoose
-  .connect(MONGOOSE_URI)
-  .then((result) => {
-    app.listen(process.env.PORT || 9000);
-    console.log("server listening at " + `${process.env.PORT}`);
-  })
-  .catch((err) => console.log(err));
+const connectionParams={
+    useNewUrlParser: true,
+    useUnifiedTopology: true 
+}
+
+mongoose.connect(MONGOOSE_URI, connectionParams)
+    .then(() => {
+        console.log('Connected to database');
+        app.listen(process.env.PORT, () => {console.log("Server listening at " + process.env.PORT)});
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+

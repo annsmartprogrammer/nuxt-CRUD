@@ -13,7 +13,7 @@ Front-end has implemented by these features:
 
 and Back-end has implemented by these features:
 
-- Typescript
+- Javascript
 - Node.js & Express.js
 - MongoDB
 - Mongoose ORM

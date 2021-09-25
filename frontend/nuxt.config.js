@@ -15,7 +15,11 @@ export default {
       { name: 'format-detection', content: 'telephone=no' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      {
+        rel: 'stylesheet',
+        href: 'https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css'
+      }
     ]
   },
 
@@ -75,7 +79,7 @@ export default {
 
   //axios base url
   axios: {
-    baseURL: 'https://localhost:9000'
+    baseURL: 'http://localhost:9000'
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
