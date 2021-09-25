@@ -1,6 +1,12 @@
 <template>
     <div>
-      <button class="btn btn-success">Create</button>
+      <nuxt-link
+        class="nav-link active"
+        aria-current="page"
+        to="/createUser"
+        >
+        <button class="btn btn-success">Create</button>
+      </nuxt-link>
       <table class="table">
         <thead>
           <tr>

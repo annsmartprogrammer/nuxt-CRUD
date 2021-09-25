@@ -53,3 +53,20 @@ exports.getUser = async (req, res, next) => { // this function will send user da
     console.log(err);
   }
 };
+
+exports.createUser = async (req, res, next) => {
+  const {fullname, email, password } = req.body;
+  try {
+    const user = new userModel({fullname: fullname, email: email, password: password});
+    user.save( function(err) {
+      if(err) {
+        const error = new Error("Creating Data failed");
+        error.statusCode = 401;
+        throw error;
+      }
+    })
+    res.status(200).json("Successfully Created")
+  }catch(err) {
+    console.log(err)
+  }
+}
