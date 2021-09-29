@@ -58,15 +58,56 @@ exports.createUser = async (req, res, next) => {
   const {fullname, email, password } = req.body;
   try {
     const user = new userModel({fullname: fullname, email: email, password: password});
+    console.log(user)
     user.save( function(err) {
       if(err) {
         const error = new Error("Creating Data failed");
         error.statusCode = 401;
         throw error;
+      } else {
+        res.status(200).json("Successfully Created")
       }
     })
-    res.status(200).json("Successfully Created")
   }catch(err) {
     console.log(err)
+  }
+};
+
+exports.editUser = async (req, res, next) => {
+  const { _id, fullname, email, password } = req.body;
+  try {
+    await userModel.findByIdAndUpdate(_id, {fullname: fullname, email: email, password: password}, function(err, user){
+      if(err) {
+        const error = new Error("Couldn't update");
+        error.statusCode = 401;
+        throw error;
+      } else {
+        res.status(200).json("successfully updated");
+      }
+    });
+  } catch(err) {
+        const error = new Error("Couldn't update");
+        error.statusCode = 401;
+        throw error;
+  }
+  
+};
+
+exports.deleteUser = async (req, res, next) => {
+  const { _id } = req.body;
+  try {
+    await userModel.findByIdAndDelete(_id, function(err) {
+      if (err) {
+        const error = new Error("Couldn't delete");
+        error.statusCode = 404;
+        throw error;
+      } else {
+        res.status(200).json("Successfully Deleted");
+      }
+    })
+  }catch(err) {
+    const error = new Error("Database Error");
+    error.statusCode = 401;
+    throw error;
   }
 }

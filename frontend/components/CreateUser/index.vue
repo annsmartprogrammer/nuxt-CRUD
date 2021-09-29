@@ -1,7 +1,7 @@
 <template>
     <div>
         <Notification :message="error" v-if="error"/>
-        <b-form @submit.prevent="create">
+        <b-form @submit.prevent="createUser">
               <b-form-group
                 id="fullname-label"
                 label="Full Name:"
@@ -66,19 +66,20 @@
             };
         },
         methods: {
-            async create() {
-                try {
-                    let response  = await this.$axios.$post("/api/auth/createuser", {
-                        fullname: this.createUserData.fullname,
-                        email: this.createUserData.email,
-                        password: this.createUserData.password
-                    });
-                    console.log(response)
+            createUser() {
+                this.$axios.$post("/api/auth/createuser", {
+                    fullname: this.createUserData.fullname,
+                    email: this.createUserData.email,
+                    password: this.createUserData.password
+                })
+                .then(res => {
+                    console.log(res)
                     this.$router.push("/users");
-                }catch (err) {
-                    this.error = err.response.data.message;
-                }
-            }
+                })
+                .catch(error => {
+                    this.error = error.response;
+                })
+        }
         }
         
     }
