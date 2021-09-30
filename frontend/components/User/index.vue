@@ -20,11 +20,12 @@
             <th scope="col">Password</th>
           </tr>
         </thead>
-        <tbody>
-          <tr  v-for="(user, index) in getUserInfo" v-bind:key="index">
+        <LoadingBar v-if="loading" :loading="loading"/>
+        <tbody v-if="!loading">
+          <tr  v-for="user in pageOfUsers" v-bind:key="user._id">
             <td><b-form-input
                     v-if="user.isEditable"
-                    :id="user._id"
+                    id="fullname"
                     v-model="user.fullname"
                     type="text"
                     :class="{'editable': user.isEditable}"
@@ -53,69 +54,95 @@
                     >
                 </b-form-input>
                 {{!user.isEditable ? user.password : ''}}</td>
-            <td><button class="btn btn-primary" v-on:click="edit(index, user._id)">{{!user.isEditable ? 'Edit' : 'Update'}}</button></td>
+            <td><button class="btn btn-primary" v-on:click="edit(user._id)">{{!user.isEditable ? 'Edit' : 'Update'}}</button></td>
             <td><button class="btn btn-danger" v-on:click="deleteUser(user._id)">Delete</button></td>
           </tr>
         </tbody>
       </table>
+       <Pagination :items="users" @changePage="onChangePage" :pageSize="5"></Pagination>
     </div>
   </template>
 
   <script>
     import SuccessNotification from '../SuccessNotification';
+    import LoadingBar from '../LoadingBar';
+    import Pagination from 'jw-vue-pagination';
 
     export default {
         components: {
             SuccessNotification,
+            LoadingBar,
+            Pagination
         }, 
         data() {
             return {
-                editData: {
-                    fullname: "",
-                    email: "",
-                    password: ""
-                },
                 users: [],
                 response: "",
                 error: null,
+                loading: false,
+                pageOfUsers: []
             };
         },
-        computed: {
-            getUserInfo() {
-                return this.users;
-            }
+     
+        mounted() {
+            this.fetchUser()
         },
-        created() {
-            this.users = this.$store.getters.getUserInfo.map(user => ({isEditable: false, ...user}));
-        },
+       
         methods: {
-            edit(index, _id) {
-                this.users[index].isEditable = !this.users[index].isEditable;
-                console.log("edit data", this.users[index].fullname, this.users[index].email, this.users[index].password )
-                if(this.users[index].isEditable == false)
-                    this.$axios.$put("/api/auth/edit", {
-                        _id: _id,
-                        fullname: this.users[index].fullname,
-                        email: this.users[index].email,
-                        password: this.users[index].password
-                    })
-                    .then(res => {
-                        this.response = res;
-                    })
-                    .catch(err => {
-                        this.error = err.response;
-                    })
+            fetchUser() {
+                this.$axios.$get("api/auth/users")
+                .then(res => {
+                    this.rows = res.user.length
+                    this.users = res.user.map(user => ({isEditable: false, ...user}))
+                })
+                .catch(err => {
+                    this.error = err.response
+                })  
+            },
+            edit(_id) {
+                this.users.forEach(user => {
+                    if(user._id == _id){
+                        user.isEditable = !user.isEditable
+                        if(user.isEditable == false) {
+                            this.loading = true;
+                            this.$axios.$put("/api/auth/edit", {
+                                _id: _id,
+                                fullname: user.fullname,
+                                email: user.email,
+                                password: user.password
+                            })
+                            .then(res => {
+                                this.loading = false;
+                                this.response = res.message
+                                setTimeout(() => this.response = "", 1000);
+                                this.users = res.user.map(user => ({isEditable: false, ...user}))
+                            })
+                            .catch(err => {
+                                this.error = err.response;
+                            })
+                        }
+                    }
+                }) 
             },
             deleteUser(id) {
+                this.loading = true;
                 this.$axios.$post("api/auth/delete", {
                     _id: id
                 })
                 .then(res => {
-                    this.response = res
+                    this.response = res.message;
+                    this.response = res.message
+                    setTimeout(() => this.response = "", 1000);
+                    this.users = res.user.map(user => ({isEditable: false, ...user}))
+                    this.loading = false;
                 })
                 .catch(err => {
                     this.error = err.response
                 })
+            },
+            onChangePage(pageOfUsers) {
+                console.log("page", pageOfUsers)
+                this.pageOfUsers = pageOfUsers
             }
         }
     };

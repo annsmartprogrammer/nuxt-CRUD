@@ -1,7 +1,8 @@
 <template>
     <div>
         <Notification :message="error" v-if="error"/>
-        <b-form @submit.prevent="createUser">
+        <LoadingBar v-if="loading" :loading = loading />
+        <b-form @submit.prevent="createUser" v-if="!loading">
               <b-form-group
                 id="fullname-label"
                 label="Full Name:"
@@ -50,10 +51,12 @@
 
 <script> 
     import Notification from '../Notification';
+    import LoadingBar from '../LoadingBar';
 
     export default {  
         components: {
             Notification,
+            LoadingBar,
         },    
         data() {
             return {
@@ -62,11 +65,13 @@
                     email: "",
                     password: ""
                 },
-                error: null
+                error: null,
+                loading: false
             };
         },
         methods: {
             createUser() {
+                this.loading = true;
                 this.$axios.$post("/api/auth/createuser", {
                     fullname: this.createUserData.fullname,
                     email: this.createUserData.email,
@@ -74,9 +79,13 @@
                 })
                 .then(res => {
                     console.log(res)
+                    this.loading = false;
+                    window.alert(res)
                     this.$router.push("/users");
                 })
                 .catch(error => {
+                    console.log(error)
+                    this.loading = false
                     this.error = error.response;
                 })
         }

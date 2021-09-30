@@ -27,19 +27,23 @@
                 </li>
               </template>
               <template v-else>
+                <li>
+                    <nuxt-link
+                        class="nav-link active"
+                        aria-current="page"
+                        to="/users"
+                        >Users</nuxt-link>
+                </li>
                 <li class="nav-item" @click="logout">
-                  <nuxt-link class="nav-link active" aria-current="page" to="#"
-                    >Logout</nuxt-link
-                  >
+                  <nuxt-link 
+                    class="nav-link active" 
+                    aria-current="page" 
+                    to="#">Logout</nuxt-link>
                 </li>
                 <li>
-                  <nuxt-link
-                    class="nav-link active"
-                    aria-current="page"
-                    to="/users"
-                  >
-                    Users
-                  </nuxt-link>
+                    <a class="nav-link active userinfo">
+                        {{getUserInfo.fullname}}
+                    </a>
                 </li>
               </template>
             </ul>
@@ -50,6 +54,8 @@
   </template>
 
   <script>
+  import { mapGetters } from 'vuex'
+
   export default {
     methods: {
       async logout() {
@@ -57,11 +63,14 @@
       }
     },
     computed: {
-      isAuthenticated() {
-        return this.$store.getters.isAuthenticated;  // it check if user isAuthenticated 
-      }
+      ...mapGetters(['isAuthenticated', 'getUserInfo'])
     }
   };
   </script>
 
-  <style></style>
+  <style>
+      .userinfo {
+          right: 0;
+          position: fixed;
+      }
+  </style>

@@ -9,7 +9,6 @@ exports.postLogin = async (req, res, next) => {
 
   try {
     const user = await userModel.findOne({ email: email });
-    console.log(user);
     
     if (!user) {
       const error = new Error("user with this email not found!");
@@ -17,6 +16,7 @@ exports.postLogin = async (req, res, next) => {
       throw error;
     }
     loadedUser = user;
+    console.log("loggedin user:", loadedUser);
 
     const comparePassword = bcrypt.compare(password, user.password);
     console.log(comparePassword)
@@ -39,7 +39,17 @@ exports.postLogin = async (req, res, next) => {
   }
 };
 
-exports.getUser = async (req, res, next) => { // this function will send user data to the front-end as I said above authFetch on the user object in nuxt.config.js will send a request and it will execute
+exports.getUser = (req, res, next) => { // this function will send user data to the front-end as I said above authFetch on the user object in nuxt.config.js will send a request and it will execute
+  res.status(200).json({
+    user: {
+      id: loadedUser._id,
+      fullname: loadedUser.fullname,
+      email: loadedUser.email,
+    },
+  });
+};
+
+exports.allUsers = async (req, res, next) => { // this function will send user data to the front-end as I said above authFetch on the user object in nuxt.config.js will send a request and it will execute
   try {
     const users = await userModel.find();
     if(!users) {
@@ -57,52 +67,50 @@ exports.getUser = async (req, res, next) => { // this function will send user da
 exports.createUser = async (req, res, next) => {
   const {fullname, email, password } = req.body;
   try {
-    const user = new userModel({fullname: fullname, email: email, password: password});
-    console.log(user)
-    user.save( function(err) {
-      if(err) {
-        const error = new Error("Creating Data failed");
-        error.statusCode = 401;
-        throw error;
-      } else {
-        res.status(200).json("Successfully Created")
-      }
-    })
+      const user = new userModel({fullname: fullname, email: email, password: password});
+      console.log(user)
+      user.save( function(err) {
+        if(err) {
+          const error = new Error("Creating Data failed");
+          error.statusCode = 401;
+          throw error;
+        } else {
+          res.status(200).json("Successfully Created")
+        }
+      })
   }catch(err) {
     console.log(err)
   }
 };
 
-exports.editUser = async (req, res, next) => {
+exports.editUser =  (req, res) => {
   const { _id, fullname, email, password } = req.body;
   try {
-    await userModel.findByIdAndUpdate(_id, {fullname: fullname, email: email, password: password}, function(err, user){
+     userModel.findByIdAndUpdate(_id, {fullname: fullname, email: email, password: password}, function(err, user){
       if(err) {
         const error = new Error("Couldn't update");
         error.statusCode = 401;
         throw error;
       } else {
-        res.status(200).json("successfully updated");
+        fetchUsers("Successfully Updated", res)
       }
     });
   } catch(err) {
-        const error = new Error("Couldn't update");
-        error.statusCode = 401;
-        throw error;
+        throw err;
   }
   
 };
 
-exports.deleteUser = async (req, res, next) => {
+exports.deleteUser =  (req, res) => {
   const { _id } = req.body;
   try {
-    await userModel.findByIdAndDelete(_id, function(err) {
+    userModel.findByIdAndDelete(_id, function(err) {
       if (err) {
         const error = new Error("Couldn't delete");
         error.statusCode = 404;
         throw error;
       } else {
-        res.status(200).json("Successfully Deleted");
+        fetchUsers("Successfully Deleted", res)
       }
     })
   }catch(err) {
@@ -110,4 +118,14 @@ exports.deleteUser = async (req, res, next) => {
     error.statusCode = 401;
     throw error;
   }
+}
+
+const fetchUsers = (message, response) => {
+    userModel.find()
+    .then(users => {
+      response.status(200).json({message: message, user: users});
+    })
+    .catch(err => {
+      throw err;
+    })
 }
